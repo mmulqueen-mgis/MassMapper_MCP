@@ -1,0 +1,239 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+      "title": "MassGIS Spatial Data API",
+      "description": "Programmatic access to MassGIS layers through MCP tools: search, schema, spatial queries, municipal filters, metadata, and MassMapper visualisation.",
+      "version": "2.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://dnd0vsc0td.execute-api.us-east-1.amazonaws.com/prod",
+        "description": "Production API Gateway endpoint"
+      }
+    ],
+    "paths": {
+ 
+      "/categories": {
+        "get": {
+          "operationId": "listCategories",
+          "summary": "List all data categories.",
+          "description": "Useful for building a category picker before a layer search.",
+          "responses": {
+            "200": {
+              "description": "Array of category names and descriptions."
+            }
+          }
+        }
+      },
+ 
+      "/search-layers": {
+        "post": {
+          "operationId": "searchLayers",
+          "summary": "Search the layer catalogue.",
+          "description": "Full‑text keyword search across layer titles, descriptions, and indexed terms.\n\nWorkflow: Always call describe-schema immediately after picking a layer so you use exact column names in subsequent ECQL filters.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Search parameters.",
+                  "properties": {
+                    "query": {
+                      "type": "string",
+                      "description": "Free‑text query (e.g. \"schools\" or \"coastal flood\")."
+                    },
+                    "category": {
+                      "type": "string",
+                      "description": "Optional category filter; use /categories to discover values."
+                    },
+                    "limit": {
+                      "type": "integer",
+                      "description": "Maximum number of layers to return.",
+                      "default": 10
+                    }
+                  },
+                  "required": ["query"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "Search results in markdown form or guidance text."
+            }
+          }
+        }
+      },
+ 
+      "/describe-schema": {
+        "post": {
+          "operationId": "describeSchema",
+          "summary": "Describe layer attribute schema.",
+          "description": "Fetches and returns the attribute/column list for a chosen layer.\n\nCRITICAL: Run this before any spatial queries. Never assume column names. Use the exact field names returned here (quote identifiers on the left-hand side in ECQL).",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Layer schema request.",
+                  "properties": {
+                    "layer_name": {
+                      "type": "string",
+                      "description": "Fully‑qualified layer name (e.g. \"massgis:GISDATA.SCHOOLS_PT\")."
+                    }
+                  },
+                  "required": ["layer_name"]
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": { "description": "Markdown table of fields and types." }
+          }
+        }
+      },
+ 
+      "/query-spatial": {
+        "post": {
+          "operationId": "querySpatial",
+          "summary": "Run an ECQL spatial query.",
+          "description": "PRIMARY TOOL for ECQL spatial predicates (INTERSECTS, DWITHIN, WITHIN, CONTAINS, TOUCHES, CROSSES, BEYOND).\n\nCRITICAL: Do NOT use SQL SELECT inside ECQL. GeoServer ECQL does not support SQL subqueries.\n\nUse ONLY the cross-layer pattern:\nDWITHIN(target_geom, collectGeometries(queryCollection('layer','geom_col','filter')), distance, meters)\nFor a single feature, use querySingle(...). Quote bare identifiers on the LHS, prefer ILIKE for case-insensitive matches, and use upper() when attribute values are uppercase.\n\nExamples:\n• Single feature:\nDWITHIN(\"shape\", querySingle('massgis:GISDATA.LIBRARIES_PT','shape', 'upper(\"town\") = ''ARLINGTON'' AND upper(\"address\") = ''175 MASSACHUSETTS AVENUE'''), 50, meters)\n\n• Multiple features via IN:\nDWITHIN(\"shape\", collectGeometries(queryCollection('massgis:GISDATA.LIBRARIES_PT','shape', '\"libkey\" IN (''PU-ARLINGTO-ROBBINS'',''OTHER'')')), 50, meters)\n\nWorkflow: search-layers → describe-schema → query-spatial → massmapper-link.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Spatial query parameters.",
+                  "properties": {
+                    "layer_name": { "type": "string", "description": "Target layer." },
+                    "cql": { "type": "string", "description": "ECQL filter expression." },
+                    "max_features": { "type": "integer", "description": "Result cap.", "default": 50 },
+                    "start_index": { "type": "integer", "description": "Paging offset.", "default": 0 },
+                    "sort_by": { "type": "string", "description": "Optional sort field." }
+                  },
+                  "required": ["layer_name", "cql"]
+                }
+              }
+            }
+          },
+          "responses": { "200": { "description": "Feature collection or guidance." } }
+        }
+      },
+ 
+      "/find-in-town": {
+        "post": {
+          "operationId": "findInTown",
+          "summary": "Intersect features with a municipality boundary.",
+          "description": "Convenience wrapper around query-spatial that automatically handles CRS and town polygons. Internally uses INTERSECTS with collectGeometries(queryCollection(...)) against the towns layer. Quote identifiers in filters and use upper() for uppercase attributes.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Town query parameters.",
+                  "properties": {
+                    "layer_name": { "type": "string", "description": "Layer to query." },
+                    "municipality": { "type": "string", "description": "Town or city name." },
+                    "max_features": { "type": "integer", "description": "Result cap.", "default": 50 }
+                  },
+                  "required": ["layer_name", "municipality"]
+                }
+              }
+            }
+          },
+          "responses": { "200": { "description": "Intersected features." } }
+        }
+      },
+ 
+      "/find-nearby": {
+        "post": {
+          "operationId": "findNearby",
+          "summary": "Buffer search around coordinates.",
+          "description": "LAST RESORT. Use only when the user provides raw WGS‑84 coordinates. Returns features within a radius of lon/lat using DWITHIN; the server transforms coordinates to the layer's native CRS automatically.\n\nIf you are finding features near other features, do NOT use this; instead use query-spatial with the universal cross-layer pattern (queryCollection/querySingle).",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Nearby search parameters.",
+                  "properties": {
+                    "layer_name": { "type": "string", "description": "Layer to search." },
+                    "latitude": { "type": "number", "description": "WGS‑84 latitude." },
+                    "longitude": { "type": "number", "description": "WGS‑84 longitude." },
+                    "radius_meters": { "type": "integer", "description": "Search radius in metres.", "default": 1000 }
+                  },
+                  "required": ["layer_name", "latitude", "longitude"]
+                }
+              }
+            }
+          },
+          "responses": { "200": { "description": "Nearby feature set." } }
+        }
+      },
+ 
+      "/layer-details": {
+        "post": {
+          "operationId": "getLayerDetails",
+          "summary": "Fetch extended metadata for a layer.",
+          "description": "Returns title, category, geometry type, and description text.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Metadata request.",
+                  "properties": {
+                    "layer_name": { "type": "string", "description": "Layer identifier." }
+                  },
+                  "required": ["layer_name"]
+                }
+              }
+            }
+          },
+          "responses": { "200": { "description": "Metadata markdown." } }
+        }
+      },
+ 
+      "/massmapper-link": {
+        "post": {
+          "operationId": "generateMapLink",
+          "summary": "Create a MassMapper visualisation link.",
+          "description": "Generates an interactive URL pre‑loading the layers returned by previous spatial queries.\n\nWorkflow: Always call after spatial analysis to visualize results (can union bboxes across multiple municipalities). After completing all spatial queries across relevant layers, call massmapper_link with municipalities set from context and include_all_used=True; if you know the exact set, pass specific_layers=[...] explicitly.",
+          "requestBody": {
+            "required": false,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "description": "Link generation options.",
+                  "properties": {
+                    "municipalities": {
+                      "type": "array",
+                      "description": "Municipalities to focus the map on.",
+                      "items": { "type": "string", "description": "Town name." }
+                    },
+                    "use_union_bbox": { "type": "boolean", "description": "Union multiple bboxes into one.", "default": true },
+                    "bbox": { "type": "string", "description": "Custom bounding box (minLon,minLat,maxLon,maxLat)." },
+                    "include_all_used": { "type": "boolean", "description": "Include every layer touched this session.", "default": true },
+                    "specific_layers": {
+                      "type": "array",
+                      "description": "Override layer list.",
+                      "items": { "type": "string", "description": "Layer name." }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": { "200": { "description": "Markdown report with MassMapper URL." } }
+        }
+      }
+    }
+  }
+ 
