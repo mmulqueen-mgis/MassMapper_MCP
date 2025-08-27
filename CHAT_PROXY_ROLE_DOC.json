@@ -1,0 +1,1213 @@
+{
+  "partial": false,
+  "policies": [
+    {
+      "type": "inline",
+      "name": "all_bedrock_trust",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action": "bedrock:*",
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "managed",
+      "name": "AWSLambdaBasicExecutionRole-a13aae43-a668-40ec-9932-60da4513a810",
+      "arn": "arn:aws:iam::600960866686:policy/service-role/AWSLambdaBasicExecutionRole-a13aae43-a668-40ec-9932-60da4513a810",
+      "id": "ANPAYX3APDF7PDNP6NRIY",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "logs:CreateLogGroup",
+            "Resource": "arn:aws:logs:us-east-1:600960866686:*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "logs:CreateLogStream",
+              "logs:PutLogEvents"
+            ],
+            "Resource": [
+              "arn:aws:logs:us-east-1:600960866686:log-group:/aws/lambda/massmapper_mcp_chat_proxy:*"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "type": "managed",
+      "name": "CloudWatchLogsFullAccess",
+      "arn": "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess",
+      "id": "ANPAJ3ZGNWK2R5HW5BQFO",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "CloudWatchLogsFullAccess",
+            "Effect": "Allow",
+            "Action": [
+              "logs:*",
+              "cloudwatch:GenerateQuery",
+              "cloudwatch:GenerateQueryResultsSummary"
+            ],
+            "Resource": "*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "managed",
+      "name": "CloudWatchFullAccess",
+      "arn": "arn:aws:iam::aws:policy/CloudWatchFullAccess",
+      "id": "ANPAIKEABORKUXN6DEAZU",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": [
+              "autoscaling:Describe*",
+              "cloudwatch:*",
+              "logs:*",
+              "sns:*",
+              "iam:GetPolicy",
+              "iam:GetPolicyVersion",
+              "iam:GetRole",
+              "oam:ListSinks"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Effect": "Allow",
+            "Action": "iam:CreateServiceLinkedRole",
+            "Resource": "arn:aws:iam::*:role/aws-service-role/events.amazonaws.com/AWSServiceRoleForCloudWatchEvents*",
+            "Condition": {
+              "StringLike": {
+                "iam:AWSServiceName": "events.amazonaws.com"
+              }
+            }
+          },
+          {
+            "Effect": "Allow",
+            "Action": [
+              "oam:ListAttachedLinks"
+            ],
+            "Resource": "arn:aws:oam:*:*:sink/*"
+          }
+        ]
+      }
+    },
+    {
+      "type": "managed",
+      "name": "AmazonBedrockFullAccess",
+      "arn": "arn:aws:iam::aws:policy/AmazonBedrockFullAccess",
+      "id": "ANPAZKAPJZG4IZPIPC3GC",
+      "document": {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Sid": "BedrockAll",
+            "Effect": "Allow",
+            "Action": [
+              "bedrock:*"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Sid": "DescribeKey",
+            "Effect": "Allow",
+            "Action": [
+              "kms:DescribeKey"
+            ],
+            "Resource": "arn:*:kms:*:::*"
+          },
+          {
+            "Sid": "APIsWithAllResourceAccess",
+            "Effect": "Allow",
+            "Action": [
+              "iam:ListRoles",
+              "ec2:DescribeVpcs",
+              "ec2:DescribeSubnets",
+              "ec2:DescribeSecurityGroups"
+            ],
+            "Resource": "*"
+          },
+          {
+            "Sid": "MarketplaceModelEndpointMutatingAPIs",
+            "Effect": "Allow",
+            "Action": [
+              "sagemaker:CreateEndpoint",
+              "sagemaker:CreateEndpointConfig",
+              "sagemaker:CreateModel",
+              "sagemaker:DeleteEndpoint",
+              "sagemaker:UpdateEndpoint"
+            ],
+            "Resource": [
+              "arn:aws:sagemaker:*:*:endpoint/*",
+              "arn:aws:sagemaker:*:*:endpoint-config/*",
+              "arn:aws:sagemaker:*:*:model/*"
+            ],
+            "Condition": {
+              "StringEquals": {
+                "aws:CalledViaLast": "bedrock.amazonaws.com",
+                "aws:ResourceTag/sagemaker-sdk:bedrock": "compatible"
+              }
+            }
+          },
+          {
+            "Sid": "MarketplaceModelEndpointAddTagsOperations",
+            "Effect": "Allow",
+            "Action": [
+              "sagemaker:AddTags"
+            ],
+            "Resource": [
+              "arn:aws:sagemaker:*:*:endpoint/*",
+              "arn:aws:sagemaker:*:*:endpoint-config/*",
+              "arn:aws:sagemaker:*:*:model/*"
+            ],
+            "Condition": {
+              "ForAllValues:StringEquals": {
+                "aws:TagKeys": [
+                  "sagemaker-sdk:bedrock",
+                  "bedrock:marketplace-registration-status",
+                  "sagemaker-studio:hub-content-arn"
+                ]
+              },
+              "StringLike": {
+                "aws:RequestTag/sagemaker-sdk:bedrock": "compatible",
+                "aws:RequestTag/bedrock:marketplace-registration-status": "registered",
+                "aws:RequestTag/sagemaker-studio:hub-content-arn": "arn:aws:sagemaker:*:aws:hub-content/SageMakerPublicHub/Model/*"
+              }
+            }
+          },
+          {
+            "Sid": "MarketplaceModelEndpointDeleteTagsOperations",
+            "Effect": "Allow",
+            "Action": [
+              "sagemaker:DeleteTags"
+            ],
+            "Resource": [
+              "arn:aws:sagemaker:*:*:endpoint/*",
+              "arn:aws:sagemaker:*:*:endpoint-config/*",
+              "arn:aws:sagemaker:*:*:model/*"
+            ],
+            "Condition": {
+              "ForAllValues:StringEquals": {
+                "aws:TagKeys": [
+                  "sagemaker-sdk:bedrock",
+                  "bedrock:marketplace-registration-status",
+                  "sagemaker-studio:hub-content-arn"
+                ]
+              },
+              "StringLike": {
+                "aws:ResourceTag/sagemaker-sdk:bedrock": "compatible",
+                "aws:ResourceTag/bedrock:marketplace-registration-status": "registered",
+                "aws:ResourceTag/sagemaker-studio:hub-content-arn": "arn:aws:sagemaker:*:aws:hub-content/SageMakerPublicHub/Model/*"
+              }
+            }
+          },
+          {
+            "Sid": "MarketplaceModelEndpointNonMutatingAPIs",
+            "Effect": "Allow",
+            "Action": [
+              "sagemaker:DescribeEndpoint",
+              "sagemaker:DescribeEndpointConfig",
+              "sagemaker:DescribeModel",
+              "sagemaker:DescribeInferenceComponent",
+              "sagemaker:ListEndpoints",
+              "sagemaker:ListTags"
+            ],
+            "Resource": [
+              "arn:aws:sagemaker:*:*:endpoint/*",
+              "arn:aws:sagemaker:*:*:endpoint-config/*",
+              "arn:aws:sagemaker:*:*:model/*"
+            ],
+            "Condition": {
+              "StringEquals": {
+                "aws:CalledViaLast": "bedrock.amazonaws.com"
+              }
+            }
+          },
+          {
+            "Sid": "MarketplaceModelEndpointInvokingOperations",
+            "Effect": "Allow",
+            "Action": [
+              "sagemaker:InvokeEndpoint",
+              "sagemaker:InvokeEndpointWithResponseStream"
+            ],
+            "Resource": [
+              "arn:aws:sagemaker:*:*:endpoint/*"
+            ],
+            "Condition": {
+              "StringEquals": {
+                "aws:CalledViaLast": "bedrock.amazonaws.com",
+                "aws:ResourceTag/sagemaker-sdk:bedrock": "compatible"
+              }
+            }
+          },
+          {
+            "Sid": "DiscoveringMarketplaceModel",
+            "Effect": "Allow",
+            "Action": [
+              "sagemaker:DescribeHubContent"
+            ],
+            "Resource": [
+              "arn:aws:sagemaker:*:aws:hub-content/SageMakerPublicHub/Model/*",
+              "arn:aws:sagemaker:*:aws:hub/SageMakerPublicHub"
+            ]
+          },
+          {
+            "Sid": "AllowMarketplaceModelsListing",
+            "Effect": "Allow",
+            "Action": [
+              "sagemaker:ListHubContents"
+            ],
+            "Resource": "arn:aws:sagemaker:*:aws:hub/SageMakerPublicHub"
+          },
+          {
+            "Sid": "PassRoleToSageMaker",
+            "Effect": "Allow",
+            "Action": [
+              "iam:PassRole"
+            ],
+            "Resource": [
+              "arn:aws:iam::*:role/*SageMaker*ForBedrock*"
+            ],
+            "Condition": {
+              "StringEquals": {
+                "iam:PassedToService": [
+                  "sagemaker.amazonaws.com",
+                  "bedrock.amazonaws.com"
+                ]
+              }
+            }
+          },
+          {
+            "Sid": "PassRoleToBedrock",
+            "Effect": "Allow",
+            "Action": [
+              "iam:PassRole"
+            ],
+            "Resource": "arn:aws:iam::*:role/*AmazonBedrock*",
+            "Condition": {
+              "StringEquals": {
+                "iam:PassedToService": [
+                  "bedrock.amazonaws.com"
+                ]
+              }
+            }
+          },
+          {
+            "Sid": "MarketplaceOperationsFromBedrockFor3pModels",
+            "Effect": "Allow",
+            "Action": [
+              "aws-marketplace:Subscribe",
+              "aws-marketplace:ViewSubscriptions",
+              "aws-marketplace:Unsubscribe"
+            ],
+            "Resource": "*",
+            "Condition": {
+              "StringEquals": {
+                "aws:CalledViaLast": "bedrock.amazonaws.com"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "resources": {
+    "bedrock": {
+      "service": {
+        "name": "Amazon Bedrock",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "bedrock",
+          "effect": "Allow",
+          "action": "bedrock:*",
+          "resource": "*",
+          "source": {
+            "policyName": "all_bedrock_trust",
+            "policyType": "inline",
+            "index": "VisualEditor0"
+          }
+        },
+        {
+          "service": "bedrock",
+          "effect": "Allow",
+          "action": "bedrock:*",
+          "resource": "*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "BedrockAll"
+          }
+        }
+      ]
+    },
+    "logs": {
+      "service": {
+        "name": "Amazon CloudWatch Logs",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "logs",
+          "effect": "Allow",
+          "action": "logs:CreateLogGroup",
+          "resource": "arn:aws:logs:us-east-1:600960866686:*",
+          "source": {
+            "policyName": "AWSLambdaBasicExecutionRole-a13aae43-a668-40ec-9932-60da4513a810",
+            "policyType": "managed",
+            "index": "0"
+          }
+        },
+        {
+          "service": "logs",
+          "effect": "Allow",
+          "action": "logs:CreateLogStream",
+          "resource": "arn:aws:logs:us-east-1:600960866686:log-group:/aws/lambda/massmapper_mcp_chat_proxy:*",
+          "source": {
+            "policyName": "AWSLambdaBasicExecutionRole-a13aae43-a668-40ec-9932-60da4513a810",
+            "policyType": "managed",
+            "index": "1"
+          }
+        },
+        {
+          "service": "logs",
+          "effect": "Allow",
+          "action": "logs:PutLogEvents",
+          "resource": "arn:aws:logs:us-east-1:600960866686:log-group:/aws/lambda/massmapper_mcp_chat_proxy:*",
+          "source": {
+            "policyName": "AWSLambdaBasicExecutionRole-a13aae43-a668-40ec-9932-60da4513a810",
+            "policyType": "managed",
+            "index": "1"
+          }
+        },
+        {
+          "service": "logs",
+          "effect": "Allow",
+          "action": "logs:*",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchLogsFullAccess",
+            "policyType": "managed",
+            "index": "CloudWatchLogsFullAccess"
+          }
+        },
+        {
+          "service": "logs",
+          "effect": "Allow",
+          "action": "logs:*",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "0"
+          }
+        }
+      ]
+    },
+    "cloudwatch": {
+      "service": {
+        "name": "Amazon CloudWatch",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "cloudwatch",
+          "effect": "Allow",
+          "action": "cloudwatch:GenerateQuery",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchLogsFullAccess",
+            "policyType": "managed",
+            "index": "CloudWatchLogsFullAccess"
+          }
+        },
+        {
+          "service": "cloudwatch",
+          "effect": "Allow",
+          "action": "cloudwatch:GenerateQueryResultsSummary",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchLogsFullAccess",
+            "policyType": "managed",
+            "index": "CloudWatchLogsFullAccess"
+          }
+        },
+        {
+          "service": "cloudwatch",
+          "effect": "Allow",
+          "action": "cloudwatch:*",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "0"
+          }
+        }
+      ]
+    },
+    "autoscaling": {
+      "service": {
+        "name": "Amazon EC2 Auto Scaling",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "autoscaling",
+          "effect": "Allow",
+          "action": "autoscaling:Describe*",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "0"
+          }
+        }
+      ]
+    },
+    "sns": {
+      "service": {
+        "name": "Amazon SNS",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "sns",
+          "effect": "Allow",
+          "action": "sns:*",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "0"
+          }
+        }
+      ]
+    },
+    "iam": {
+      "service": {
+        "name": "AWS Identity and Access Management (IAM)",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "iam",
+          "effect": "Allow",
+          "action": "iam:GetPolicy",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "0"
+          }
+        },
+        {
+          "service": "iam",
+          "effect": "Allow",
+          "action": "iam:GetPolicyVersion",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "0"
+          }
+        },
+        {
+          "service": "iam",
+          "effect": "Allow",
+          "action": "iam:GetRole",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "0"
+          }
+        },
+        {
+          "service": "iam",
+          "effect": "Allow",
+          "action": "iam:CreateServiceLinkedRole",
+          "resource": "arn:aws:iam::*:role/aws-service-role/events.amazonaws.com/AWSServiceRoleForCloudWatchEvents*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "1"
+          }
+        },
+        {
+          "service": "iam",
+          "effect": "Allow",
+          "action": "iam:ListRoles",
+          "resource": "*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "APIsWithAllResourceAccess"
+          }
+        },
+        {
+          "service": "iam",
+          "effect": "Allow",
+          "action": "iam:PassRole",
+          "resource": "arn:aws:iam::*:role/*SageMaker*ForBedrock*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "PassRoleToSageMaker"
+          }
+        },
+        {
+          "service": "iam",
+          "effect": "Allow",
+          "action": "iam:PassRole",
+          "resource": "arn:aws:iam::*:role/*AmazonBedrock*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "PassRoleToBedrock"
+          }
+        }
+      ]
+    },
+    "oam": {
+      "service": {
+        "name": "Amazon CloudWatch Observability Access Manager",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "oam",
+          "effect": "Allow",
+          "action": "oam:ListSinks",
+          "resource": "*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "0"
+          }
+        },
+        {
+          "service": "oam",
+          "effect": "Allow",
+          "action": "oam:ListAttachedLinks",
+          "resource": "arn:aws:oam:*:*:sink/*",
+          "source": {
+            "policyName": "CloudWatchFullAccess",
+            "policyType": "managed",
+            "index": "2"
+          }
+        }
+      ]
+    },
+    "kms": {
+      "service": {
+        "name": "AWS Key Management Service",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "kms",
+          "effect": "Allow",
+          "action": "kms:DescribeKey",
+          "resource": "arn:*:kms:*:::*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "DescribeKey"
+          }
+        }
+      ]
+    },
+    "ec2": {
+      "service": {
+        "name": "Amazon EC2",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "ec2",
+          "effect": "Allow",
+          "action": "ec2:DescribeVpcs",
+          "resource": "*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "APIsWithAllResourceAccess"
+          }
+        },
+        {
+          "service": "ec2",
+          "effect": "Allow",
+          "action": "ec2:DescribeSubnets",
+          "resource": "*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "APIsWithAllResourceAccess"
+          }
+        },
+        {
+          "service": "ec2",
+          "effect": "Allow",
+          "action": "ec2:DescribeSecurityGroups",
+          "resource": "*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "APIsWithAllResourceAccess"
+          }
+        }
+      ]
+    },
+    "sagemaker": {
+      "service": {
+        "name": "Amazon SageMaker",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateEndpointConfig",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateEndpointConfig",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateEndpointConfig",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateModel",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateModel",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:CreateModel",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DeleteEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DeleteEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DeleteEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:UpdateEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:UpdateEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:UpdateEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:AddTags",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointAddTagsOperations"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:AddTags",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointAddTagsOperations"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:AddTags",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointAddTagsOperations"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DeleteTags",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointDeleteTagsOperations"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DeleteTags",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointDeleteTagsOperations"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DeleteTags",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointDeleteTagsOperations"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeEndpointConfig",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeEndpointConfig",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeEndpointConfig",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeModel",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeModel",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeModel",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeInferenceComponent",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeInferenceComponent",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeInferenceComponent",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:ListEndpoints",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:ListEndpoints",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:ListEndpoints",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:ListTags",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:ListTags",
+          "resource": "arn:aws:sagemaker:*:*:endpoint-config/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:ListTags",
+          "resource": "arn:aws:sagemaker:*:*:model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointNonMutatingAPIs"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:InvokeEndpoint",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointInvokingOperations"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:InvokeEndpointWithResponseStream",
+          "resource": "arn:aws:sagemaker:*:*:endpoint/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceModelEndpointInvokingOperations"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeHubContent",
+          "resource": "arn:aws:sagemaker:*:aws:hub-content/SageMakerPublicHub/Model/*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "DiscoveringMarketplaceModel"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:DescribeHubContent",
+          "resource": "arn:aws:sagemaker:*:aws:hub/SageMakerPublicHub",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "DiscoveringMarketplaceModel"
+          }
+        },
+        {
+          "service": "sagemaker",
+          "effect": "Allow",
+          "action": "sagemaker:ListHubContents",
+          "resource": "arn:aws:sagemaker:*:aws:hub/SageMakerPublicHub",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "AllowMarketplaceModelsListing"
+          }
+        }
+      ]
+    },
+    "aws-marketplace": {
+      "service": {
+        "name": "AWS Marketplace",
+        "icon": "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAAAAAAALAAAAAABAAEAAAICRAEAOw"
+      },
+      "statements": [
+        {
+          "service": "aws-marketplace",
+          "effect": "Allow",
+          "action": "aws-marketplace:Subscribe",
+          "resource": "*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceOperationsFromBedrockFor3pModels"
+          }
+        },
+        {
+          "service": "aws-marketplace",
+          "effect": "Allow",
+          "action": "aws-marketplace:ViewSubscriptions",
+          "resource": "*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceOperationsFromBedrockFor3pModels"
+          }
+        },
+        {
+          "service": "aws-marketplace",
+          "effect": "Allow",
+          "action": "aws-marketplace:Unsubscribe",
+          "resource": "*",
+          "source": {
+            "policyName": "AmazonBedrockFullAccess",
+            "policyType": "managed",
+            "index": "MarketplaceOperationsFromBedrockFor3pModels"
+          }
+        }
+      ]
+    }
+  },
+  "roleName": "massmapper_mcp_chat_proxy-role-4zxp146u",
+  "trustedEntities": [
+    "lambda.amazonaws.com"
+  ]
+}
