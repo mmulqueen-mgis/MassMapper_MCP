@@ -1,0 +1,41 @@
+{
+  "Version": "2012-10-17",
+  "Id": "default",
+  "Statement": [
+    {
+      "Sid": "invoke-bedrock",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "bedrock.amazonaws.com"
+      },
+      "Action": "lambda:InvokeFunction",
+      "Resource": "arn:aws:lambda:us-east-1:600960866686:function:massmapper_mcp_chat_proxy"
+    },
+    {
+      "Sid": "4a6cdae9-d920-5160-9bbe-fd3b17cd28d2",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "apigateway.amazonaws.com"
+      },
+      "Action": "lambda:InvokeFunction",
+      "Resource": "arn:aws:lambda:us-east-1:600960866686:function:massmapper_mcp_chat_proxy",
+      "Condition": {
+        "ArnLike": {
+          "AWS:SourceArn": "arn:aws:execute-api:us-east-1:600960866686:20t56doge3/*/*/chat"
+        }
+      }
+    },
+    {
+      "Sid": "FunctionURLAllowPublicAccess",
+      "Effect": "Allow",
+      "Principal": "*",
+      "Action": "lambda:InvokeFunctionUrl",
+      "Resource": "arn:aws:lambda:us-east-1:600960866686:function:massmapper_mcp_chat_proxy",
+      "Condition": {
+        "StringEquals": {
+          "lambda:FunctionUrlAuthType": "NONE"
+        }
+      }
+    }
+  ]
+}
